@@ -13,9 +13,9 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   const contactsArr = await listContacts();
-  const findedObj = contactsArr.filter((obj) => obj.id === contactId);
+  const findedObj = contactsArr.find((obj) => obj.id === contactId);
 
-  return findedObj[0] ? findedObj[0] : null;
+  return findedObj || null;
 };
 
 const removeContact = async (contactId) => {
@@ -45,10 +45,7 @@ const addContact = async ({ name, email, phone }) => {
     phone,
   };
   const contactsArr = await listContacts();
-  const isOlredyExist = Boolean(
-    contactsArr.find((contact) => contact.email === email)
-  );
-
+  const isOlredyExist = contactsArr.find((contact) => contact.email === email);
   if (!isOlredyExist) {
     contactsArr.push(newContact);
 
