@@ -1,73 +1,29 @@
-const fs = require("fs/promises");
-const path = require("path");
-
-const { nanoid } = require("nanoid");
-
-const contactsPath = path.join(__dirname, "contacts.json");
+const { Contact } = require("./Contact");
 
 const listContacts = async () => {
-  const data = JSON.parse(await fs.readFile(contactsPath, "utf-8"));
+  const data = await Contact.find();
 
   return data;
 };
 
 const getContactById = async (contactId) => {
-  const contactsArr = await listContacts();
-  const findedObj = contactsArr.find((obj) => obj.id === contactId);
-
-  return findedObj || null;
+  return await Contact.findOne({ _id: contactId });
 };
 
 const removeContact = async (contactId) => {
-  const contactsArr = await listContacts();
-  let deletedContact = null;
-  const newContactArr = [];
-
-  for (const contact of contactsArr) {
-    if (contact.id === contactId) {
-      deletedContact = contact;
-      continue;
-    }
-    newContactArr.push(contact);
-  }
-
-  deletedContact &&
-    fs.writeFile(contactsPath, JSON.stringify(newContactArr, null, 2));
-
-  return deletedContact;
+  return await Contact.findByIdAndRemove({ _id: contactId });
 };
 
 const addContact = async ({ name, email, phone }) => {
-  const newContact = {
-    id: nanoid(),
-    name,
-    email,
-    phone,
-  };
-  const contactsArr = await listContacts();
-  const isOlredyExist = contactsArr.find((contact) => contact.email === email);
-  if (!isOlredyExist) {
-    contactsArr.push(newContact);
-
-    fs.writeFile(contactsPath, JSON.stringify(contactsArr, null, 2));
-
-    return newContact;
-  }
+  return Contact.create({ name, email, phone });
 };
 
-const updateContact = async (contactId, { name, email, phone }) => {
-  const contactsArr = await listContacts();
+const updateContact = async (contactId, fields) => {
+  const data = await Contact.findByIdAndUpdate({ _id: contactId }, fields);
 
-  const indexOfUpdatedContact = contactsArr.findIndex(
-    (contact) => contact.id === contactId
-  );
+  if (data) return getContactById(data._id);
 
-  if (indexOfUpdatedContact === -1) return null;
-
-  const updatedContact = { id: contactId, name, email, phone };
-  contactsArr[indexOfUpdatedContact] = updatedContact;
-  fs.writeFile(contactsPath, JSON.stringify(contactsArr, null, 2));
-  return updatedContact;
+  return data;
 };
 
 module.exports = {
