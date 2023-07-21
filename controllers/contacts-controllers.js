@@ -7,6 +7,7 @@ const {
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 } = require("../models/contacts");
 const ctrWrapper = require("../decorators/ctrlWrapper");
 
@@ -22,6 +23,13 @@ const contactAddSchema = Joi.object({
   phone: Joi.string().required().messages({
     "any.required": "missing required phone field",
     "string.empty": "phone can not be empty ",
+  }),
+});
+
+const contactPatchSchema = Joi.object({
+  favorite: Joi.bool().required().messages({
+    "any.required": "missing field favorite",
+    "string.empty": "favorite can not be empty ",
   }),
 });
 
@@ -80,10 +88,28 @@ const postNewContact = async (req, res) => {
   res.status(201).json(result);
 };
 
+const patchFavoriteById = async (req, res) => {
+  const body = req.body;
+  const id = req.params.contactId;
+  const { error } = contactPatchSchema.validate(body);
+  if (error) {
+    throw HttpError(400, error.message);
+  }
+
+  const result = await updateStatusContact(id, body);
+
+  if (!result) {
+    throw HttpError(404, `Not found`);
+  }
+
+  res.json(result);
+};
+
 module.exports = {
   getAll: ctrWrapper(getAll),
   getById: ctrWrapper(getById),
   deleteById: ctrWrapper(deleteById),
   updateById: ctrWrapper(updateById),
   postNewContact: ctrWrapper(postNewContact),
+  patchFavoriteById: ctrWrapper(patchFavoriteById),
 };
