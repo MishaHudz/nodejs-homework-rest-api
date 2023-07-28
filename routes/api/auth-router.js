@@ -9,6 +9,7 @@ const {
   signIn,
   getCurrent,
   logOut,
+  patchSubscription,
 } = require("../../controllers/users-controllers");
 
 authRouter.post("/users/register", signUp);
@@ -19,4 +20,5 @@ authRouter.get("/users/current", authenticate, getCurrent);
 
 authRouter.post("/users/logout", authenticate, logOut);
 
+authRouter.patch("/users", authenticate, patchSubscription);
 module.exports = { authRouter };

@@ -21,6 +21,17 @@ const userRegistrationSchema = Joi.object({
   }),
 });
 
+const patchSubscriptionSchema = Joi.object({
+  subscription: Joi.string()
+    .valid("starter", "pro", "business")
+    .required()
+    .messages({
+      "any.required": "missing required subscription field",
+      "string.empty": "subscription can not be empty ",
+      "any.only": "subscription must be one of 'starter', 'pro', 'business'",
+    }),
+});
+
 const signUp = async (req, res) => {
   const body = req.body;
   const { error } = userRegistrationSchema.validate(body);
@@ -92,9 +103,29 @@ const logOut = async (req, res) => {
   res.status(204).json();
 };
 
+const patchSubscription = async (req, res) => {
+  const body = req.body;
+  const subscription = body.subscription;
+  const id = req.user._id;
+
+  const { error } = patchSubscriptionSchema.validate(body);
+  if (error) {
+    throw HttpError(400, error.message);
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    { subscription },
+    { new: true, select: "email subscription " }
+  );
+
+  res.status(200).json(updatedUser);
+};
+
 module.exports = {
   signUp: ctrWrapper(signUp),
   signIn: ctrWrapper(signIn),
   getCurrent: ctrWrapper(getCurrent),
   logOut: ctrWrapper(logOut),
+  patchSubscription: ctrWrapper(patchSubscription),
 };
