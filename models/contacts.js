@@ -1,7 +1,13 @@
 const { Contact } = require("./Contact");
 
-const listContacts = async (owner, page, limit) => {
-  const data = await Contact.find({ owner }, "", {
+const listContacts = async (owner, page, limit, favorite) => {
+  const findFilter = { owner };
+
+  if (favorite !== "") {
+    findFilter.favorite = favorite;
+  }
+
+  const data = await Contact.find(findFilter, "", {
     skip: (page - 1) * limit,
     limit,
   }).populate("owner", "email subscription");

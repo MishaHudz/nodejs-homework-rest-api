@@ -35,9 +35,9 @@ const contactPatchSchema = Joi.object({
 
 const getAll = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, favorite = "" } = req.query;
 
-  const result = await listContacts(owner, page, limit);
+  const result = await listContacts(owner, page, limit, favorite);
   res.json(result);
 };
 
