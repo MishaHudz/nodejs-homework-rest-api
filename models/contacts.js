@@ -1,7 +1,10 @@
 const { Contact } = require("./Contact");
 
-const listContacts = async () => {
-  const data = await Contact.find();
+const listContacts = async (owner, page, limit) => {
+  const data = await Contact.find({ owner }, "", {
+    skip: (page - 1) * limit,
+    limit,
+  }).populate("owner", "email subscription");
 
   return data;
 };
@@ -14,8 +17,8 @@ const removeContact = async (contactId) => {
   return await Contact.findByIdAndRemove({ _id: contactId });
 };
 
-const addContact = async ({ name, email, phone }) => {
-  return Contact.create({ name, email, phone });
+const addContact = async ({ name, email, phone, owner }) => {
+  return Contact.create({ name, email, phone, owner });
 };
 
 const updateContact = async (contactId, fields) => {
