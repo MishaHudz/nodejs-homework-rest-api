@@ -33,8 +33,11 @@ const contactPatchSchema = Joi.object({
   }),
 });
 
-const getAll = async (_, res) => {
-  const result = await listContacts();
+const getAll = async (req, res) => {
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 10, favorite = "" } = req.query;
+
+  const result = await listContacts(owner, page, limit, favorite);
   res.json(result);
 };
 
@@ -84,13 +87,16 @@ const postNewContact = async (req, res) => {
     throw HttpError(400, error.message);
   }
 
-  const result = await addContact(body);
+  const { _id: owner } = req.user;
+
+  const result = await addContact({ ...body, owner });
   res.status(201).json(result);
 };
 
 const patchFavoriteById = async (req, res) => {
   const body = req.body;
   const id = req.params.contactId;
+
   const { error } = contactPatchSchema.validate(body);
   if (error) {
     throw HttpError(400, error.message);
