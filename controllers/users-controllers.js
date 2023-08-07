@@ -45,6 +45,11 @@ const signUp = async (req, res) => {
     throw HttpError(400, error.message);
   }
 
+  const isUserExist = await User.findOne({ email });
+  if (isUserExist) {
+    throw HttpError(400, "Email in use");
+  }
+
   const hashPassword = await bcrypt.hash(body.password, 10);
   const avatarURL = gravatar.url(email);
   body.password = hashPassword;
@@ -132,8 +137,6 @@ const patchSubscription = async (req, res) => {
 };
 
 const updateAvatar = async (req, res) => {
-  console.log(req.file);
-
   const { _id } = req.user;
   const { path: tempUpload, originalname } = req.file;
   const filename = `${_id}_${originalname}`;
