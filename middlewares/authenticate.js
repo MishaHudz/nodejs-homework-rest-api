@@ -18,6 +18,12 @@ const authenticate = async (req, res, next) => {
     throw HttpError(401, "Not authorized");
   }
 
+  const isTokenExist = await User.findOne({ token });
+
+  if (!isTokenExist) {
+    throw HttpError(401, "Not authorized");
+  }
+
   try {
     const { id } = jwt.verify(token, JWT_SECRET);
     const user = await User.findOne({ _id: id });

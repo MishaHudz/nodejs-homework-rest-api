@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { authenticate } = require("../../middlewares");
+const { authenticate, upload } = require("../../middlewares");
 
 const authRouter = express.Router();
 
@@ -10,6 +10,7 @@ const {
   getCurrent,
   logOut,
   patchSubscription,
+  updateAvatar,
 } = require("../../controllers/users-controllers");
 
 authRouter.post("/users/register", signUp);
@@ -21,4 +22,11 @@ authRouter.get("/users/current", authenticate, getCurrent);
 authRouter.post("/users/logout", authenticate, logOut);
 
 authRouter.patch("/users", authenticate, patchSubscription);
+
+authRouter.patch(
+  "/users/avatars",
+  authenticate,
+  upload.single("avatar"),
+  updateAvatar
+);
 module.exports = { authRouter };
