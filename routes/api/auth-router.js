@@ -11,9 +11,15 @@ const {
   logOut,
   patchSubscription,
   updateAvatar,
+  verifyToken,
+  secondVerifyToken,
 } = require("../../controllers/users-controllers");
 
 authRouter.post("/users/register", signUp);
+
+authRouter.get("/users/verify/:verificationToken", verifyToken);
+
+authRouter.post("/users/verify", secondVerifyToken);
 
 authRouter.post("/users/login", signIn);
 
@@ -29,4 +35,5 @@ authRouter.patch(
   upload.single("avatar"),
   updateAvatar
 );
+
 module.exports = { authRouter };
